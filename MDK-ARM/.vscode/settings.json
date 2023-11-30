@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "README": "markdown",
+        "gpio.h": "c"
+    }
+}
