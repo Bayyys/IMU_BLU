@@ -24,7 +24,8 @@ state.options = {
 	xAxis: [
 		{
 			type: 'category',
-			boundaryGap: true,
+			boundaryGap: true,	// 
+			scale: true,
 			data: (function () {
 				var now = new Date();
 				var res = [];
@@ -109,7 +110,7 @@ const startLine = ()=>{
 		state.options.xAxis[0].data.push(axisData);
 	
 		chart.value.setOption(state.options);
-	}, 10);
+	}, 100);
 }
 onUnmounted(() => {
 	// 销毁循环定时器

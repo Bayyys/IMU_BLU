@@ -1,11 +1,11 @@
 <template>
 	<view>
 		<h1>Blutooth</h1>
-		<button @click="openBLU">打开蓝牙</button>
+		<!-- <button @click="openBLU">打开蓝牙</button> -->
 		<button @click="startSearch">开始搜索</button>
-		<button @click="stopSearch">停止搜索</button>
-		<button @click="showSearchList">展示搜索设备</button>
-		<button @click="showConnectedList">展示连接设备</button>
+		<!-- <button @click="stopSearch">停止搜索</button> -->
+		<!-- <button @click="showSearchList">展示搜索设备</button> -->
+		<!-- <button @click="showConnectedList">展示连接设备</button> -->
 		<uni-section title="搜索蓝牙设备" type="line">
 			<uni-group v-for="item in state.searchList" :key="item.deviceId" :title="item.name" mode="card">
 				<view>
@@ -45,11 +45,13 @@ const state = reactive({
 // 连接设备: 跳转到蓝牙设备主页
 const connectDevice = (device) => {
 	deviceStore.mDevice(device);
+	// #ifdef APP
+	uni.stopBluetoothDevicesDiscovery({})
+	// #endif
 	uni.navigateTo({
 		url: '/pages/blu/device/device'
 	})
 };
-
 
 // #ifdef APP
 // 打开蓝牙

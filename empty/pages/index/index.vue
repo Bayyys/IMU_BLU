@@ -1,18 +1,18 @@
 <template>
 	<view class="content">
-		<image class="logo" src="/static/dice.png"></image>
+		<image class="logo" src="/static/IMU.png"></image>
 		<view class="text-area">
 			<text class="title">{{ msg }}</text>
-			<button @click='jumpEcharts'>Echarts</button>
-			<button @click='jumpBLU'>BLU</button>
+			<!-- <button @click='jumpEcharts'>Echarts</button> -->
 		</view>
+		<view><button @click='jumpBLU'>Blutooth Plan</button></view>
 	</view>
 </template>
 
 <script setup>
 import {ref} from 'vue'
 import test1Vue from '../test1/test1.vue';
-const msg = 'hello world';
+const msg = 'IMU Measure Demo';
 const onload = ()=>{
 	console.log("Enter inde.vue");
 };
