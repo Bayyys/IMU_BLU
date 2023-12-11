@@ -13,3 +13,4 @@ public class App extends Application {
         FastBleUtils.getInstant().init(this);
     }
 }
+    
