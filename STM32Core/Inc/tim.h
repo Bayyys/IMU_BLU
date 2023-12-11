@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file    gpio.h
+  * @file    tim.h
   * @brief   This file contains all the function prototypes for
-  *          the gpio.c file
+  *          the tim.c file
   ******************************************************************************
   * @attention
   *
@@ -17,8 +17,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __GPIO_H__
-#define __GPIO_H__
+#ifndef __TIM_H__
+#define __TIM_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,17 +31,15 @@ extern "C" {
 
 /* USER CODE END Includes */
 
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
+
 /* USER CODE BEGIN Private defines */
-// Some Macros for LED control
-#define LED_G_ON() HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET)
-#define LED_G_OFF() HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET)
-#define LED_R_ON() HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET)
-#define LED_R_OFF() HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_SET)
-#define LED_G_TOGGLE() HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin)
-#define LED_R_TOGGLE() HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin)
+
 /* USER CODE END Private defines */
 
-void MX_GPIO_Init(void);
+void MX_TIM1_Init(void);
+void MX_TIM2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -50,6 +48,7 @@ void MX_GPIO_Init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ GPIO_H__ */
+
+#endif /* __TIM_H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

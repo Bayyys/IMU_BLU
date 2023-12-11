@@ -67,6 +67,8 @@ void Error_Handler(void);
 #define CMD_BLU_FLAG_2 0x54
 #define LED_G_Pin GPIO_PIN_5
 #define LED_G_GPIO_Port GPIOE
+#define Wake_Pin GPIO_PIN_11
+#define Wake_GPIO_Port GPIOE
 #define LED_R_Pin GPIO_PIN_5
 #define LED_R_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
