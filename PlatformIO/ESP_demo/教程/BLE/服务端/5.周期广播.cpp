@@ -14,7 +14,8 @@
 bool isAdvertising = false;  // 是否正在广播
 int clientCount = 0;         // 客户端数量
 int cnt_value = 0;
-BLECharacteristic *pCntCharacteristic = nullptr;
+BLECharacteristic *pChar = nullptr;
+BLECharacteristic *pCharCnt = nullptr;
 AsyncTimer t;
 
 class MyServerCallbacks : public BLEServerCallbacks {  // 服务器回调
@@ -30,45 +31,11 @@ class MyServerCallbacks : public BLEServerCallbacks {  // 服务器回调
   }
 };
 
-// 安全回调
-class MySecurity : public BLESecurityCallbacks {
-  uint32_t onPassKeyRequest() {  // 请求密码
-    Serial.println("PassKeyRequest");
-    return 123456;
-  }
-
-  bool onConfirmPIN(uint32_t pass_key) {  // 显示动态码并确认是否同意配对
-    Serial.printf("The passkey YES/NO number: %d !", pass_key);
-    return true;
-  }
-
-  void onAuthenticationComplete(esp_ble_auth_cmpl_t auth_cmpl) {  // 认证结果
-    if (!auth_cmpl.success) {
-      Serial.println("Authentication failed!");
-    } else {
-      Serial.println("Authentication success!");
-    }
-  }
-
-  bool onSecurityRequest() {  // 安全请求
-    Serial.println("SecurityRequest");
-    return true;
-  }
-
-  void onPassKeyNotify(uint32_t pass_key) {  // 通知密码
-    Serial.printf("The passkey Notify number: %d !\n", pass_key);
-  }
-};
-
 void setup() {
   Serial.begin(115200);
 
   // 初始化串口
   BLEDevice::init("ESP32_Bayyy");
-  BLEDevice::setEncryptionLevel(
-      ESP_BLE_SEC_ENCRYPT_MITM);  // 设置加密级别(ESP_BLE_SEC_ENCRYPT_MITM:
-                                  // 需要配对)
-  BLEDevice::setSecurityCallbacks(new MySecurity());  // 设置安全回调
   auto local_address = BLEDevice::getAddress();
   Serial.print("Local Address: ");
   Serial.println(local_address.toString().c_str());
@@ -77,30 +44,21 @@ void setup() {
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());  // 设置服务器回调
 
-  // 设置安全回调
-  BLESecurity *pSecurity = new BLESecurity();
-  pSecurity->setAuthenticationMode(
-      ESP_LE_AUTH_REQ_SC_MITM_BOND);        // 设置认证模式(需要配对)
-  pSecurity->setCapability(ESP_IO_CAP_IO);  // 设置IO能力
-  pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK |
-                                  ESP_BLE_ID_KEY_MASK);  // 设置初始加密密钥
-
   // 创建一个 BLE 服务
   BLEService *pService = pServer->createService(SERVICE_UUID);
   // 创建一个 BLE 特征
-  BLECharacteristic *pCharacteristic = pService->createCharacteristic(
-      CHARACTERISTIC_UUID,
+  // 1. 读写特征值
+  pChar = pService->createCharacteristic(
+      CHAR_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
-  pCntCharacteristic = pService->createCharacteristic(
-      CNT_CHARACTERISTIC_UUID,
+  // 2. 周期广播特征值
+  pCharCnt = pService->createCharacteristic(
+      CHAR_CNT_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
 
   // 给特征赋值
-  pCharacteristic->setValue("Hello World Bayyy");
-  // pCharacteristic->setAccessPermissions(
-  //     ESP_GATT_PERM_READ_ENCRYPTED |
-  //     ESP_GATT_PERM_WRITE_ENCRYPTED);  // 设置权限(需要加密)
-  pCntCharacteristic->setValue(cnt_value);
+  pChar->setValue("Hello World! Normal Characteristic!");
+  pCharCnt->setValue(cnt_value);
   // pCntCharacteristic->addDescriptor(
   //     new BLE2902());  // 添加描述符(启用Notify和Indicate需要添加)
 
@@ -115,22 +73,20 @@ void setup() {
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();  // 获取广播对象
   pAdvertising->addServiceUUID(SERVICE_UUID);  // 添加服务UUID
   pAdvertising->setScanResponse(true);         // 设置扫描响应
-  pAdvertising->setMinPreferred(0x12);         // 设置最小首选值
-  BLEDevice::startAdvertising();               // 开始广播
+  pAdvertising->setMinPreferred(
+      0x12);  // 此处设置值含义为：广播最小间隔(0x12*0.625ms=18.75ms)
+  BLEDevice::startAdvertising();  // 开始广播
   Serial.println("Characteristic defined! Now you can read it in your phone!");
 
   t.setInterval(
       [] {
-        if (cnt_value % 10 == 0) {
-          Serial.println("Value Notifying...");
-        }
         cnt_value++;
         if (clientCount > 0) {
-          pCntCharacteristic->setValue(cnt_value);
-          pCntCharacteristic->notify();
+          pCharCnt->setValue(cnt_value);
+          pCharCnt->notify();
         }
       },
-      10);
+      10);  // 10ms更新一次
 
   t.setInterval(
       [] {
@@ -138,10 +94,10 @@ void setup() {
           delay(500);                     // 延迟500ms
           BLEDevice::startAdvertising();  // 开始广播
           isAdvertising = true;
-          Serial.println("Start advertising...");
+          Serial.println("Restart advertising...");
         }
       },
-      50);  // 心跳
+      50);  // 断线重连
 }
 
 void loop() {
