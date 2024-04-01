@@ -73,7 +73,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+PlatformIO/lib/
 lib64/
 parts/
 sdist/
