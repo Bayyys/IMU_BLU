@@ -1,18 +1,15 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QHBoxLayout,
-    QLabel,
     QMainWindow,
     QVBoxLayout,
     QWidget,
     QComboBox,
 )
-import bleak
 
 
 class BLEWin(QMainWindow):
     def __init__(
-        self, parent=None, flags: Qt.WindowType = Qt.WindowType.Window
+            self, parent=None, flags: Qt.WindowType = Qt.WindowType.Window
     ) -> None:
         super().__init__(parent=parent, flags=flags)
         self.setWindowTitle("BLE")
