@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from PyQt5.QtCore import QThread
+from PyQt6.QtCore import QThread
 from bleak import BleakScanner, BleakClient
 
 

@@ -8,8 +8,8 @@
 
 // 为BLE服务和特征定义UUID
 #define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-#define CNT_CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a9"
+#define CHAR_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define CHAR_CNT_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a9"
 
 bool isAdvertising = false;  // 是否正在广播
 int clientCount = 0;         // 客户端数量
