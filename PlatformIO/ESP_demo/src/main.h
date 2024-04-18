@@ -28,7 +28,8 @@ int pConIndex = -1;                       // 待连接设备的编号
 
 int device_data_list[4] = {0, 0, 0, 0};          // 设备数据
 int is_connected_device_list[4] = {0, 0, 0, 0};  // 是否连接设备
-vector<int> device_data_update = {0, 0, 0, 0};   // 设备数据更新标志
+vector<uint8_t> device_connected_bytes = {0x55, 0x62};
+vector<int> device_data_update = {0, 0, 0, 0};  // 设备数据更新标志
 vector<uint8_t> dData = {0x55, 0x61};
 vector<vector<float>> device_data = {
     {0, 0, 0},  // 设备 0

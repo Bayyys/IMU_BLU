@@ -4,10 +4,16 @@
 void initDeviceAddressList() {
   for (auto address_str : device_address_str_list) {
     BLE_address_list.push_back(BLEAddress(address_str));
+    device_connected_bytes.push_back(0x00);
   }
   t_name = t.setInterval(
       []() {
-        if (!doPrint) return;  // 如果不输出数据, 则直接返回
+        if (!doPrint) {  // 如果不输出数据, 则输出连接状态
+          Serial.write(device_connected_bytes.data(),
+                       device_connected_bytes.size());
+          Serial.println();
+          return;
+        }
         for (auto update : device_data_update) {
           if (update == 0) {
             return;
@@ -26,7 +32,7 @@ void initDeviceAddressList() {
         Serial.println();
         device_data_update.assign(device_data_update.size(), 0);
       },
-      10);
+      100);
   for (int i = 0; i < device_address_str_list.size(); i++) {
     for (int j = 0; j < 6; j++) {
       dData.push_back(0x00);
@@ -43,6 +49,9 @@ void scan_handler() {
   }
   str += ".";
   log_i("%s", str);
+  if (doDebug) {
+    Serial.println(str.c_str());
+  }
   pBLEScan->clearResults();  // 清空搜索结果
   pBLEScan->start(5);        // 开始搜索
 }
@@ -52,7 +61,6 @@ void con_handler() {
   MyClient client = client_list[pConIndex];
   if (client.connect()) {
     log_i("设备-%d Connect successfully!\n", pConIndex);
-    is_connected_device_list[pConIndex] = 1;
   } else {
     log_e("设备-%d Connect failed!\n", pConIndex);
   }
@@ -90,19 +98,26 @@ MyClientCallbacks::MyClientCallbacks(int idx) { client_index_ = idx; };
 void MyClientCallbacks::onConnect(BLEClient* pClient) {
   log_i("%s 加入连接.", pClient->getPeerAddress().toString().c_str());
   is_scan_down += 1;
+  is_connected_device_list[client_index_] = 1;
+  device_connected_bytes[client_index_ + 2] = 0x01;
+  // 输出连接信息
+  Serial.write(device_connected_bytes.data(), device_connected_bytes.size());
+  Serial.println();
   if (is_scan_down == BLE_address_list.size()) {
     log_i("-------所有设备已连接---------");
+    doScan = 0;
     if (!doPrint) {
-      doPrint = 1;
       log_i("-------开始输出数据---------");
     }
   }
 }
 void MyClientCallbacks::onDisconnect(BLEClient* pClient) {
   is_connected_device_list[client_index_] = 0;  // 标志位清零
+  device_connected_bytes[client_index_ + 2] = 0x00;
   log_e("%s 断开连接.", pClient->getPeerAddress().toString().c_str());
   is_scan_down -= 1;
   doPrint = 0;
+  doScan = 1;
   log_e("----- 设备-%d 断开连接 -----\n", client_index_);
   log_e("----- 剩余设备数: %d ----\n", is_scan_down);
 }
@@ -154,6 +169,7 @@ bool MyClient::connect() {
   if (pWriteChar_ && pWriteChar_->canWriteNoResponse()) {
     pWriteCharList[BLEIndex_] = pWriteChar_;
     log_i("设备-%d 获取 WriteNoRes 特征成功\n", BLEIndex_);
+    pWriteChar_->writeValue(changeRate[5].data(), 5);  // 默认速率为 10Hz
   } else {
     log_e("设备-%d 获取 WriteNoRes 特征失败\n", BLEIndex_);
     return false;
@@ -249,8 +265,14 @@ void serialEvent() {
     doScan = 0;
   } else if (str == "scan") {
     doScan = 1;
-  } else if (str == "print") {
-    doPrint = doPrint == 0 ? 1 : 0;
+  } else if (str == "printy") {
+    if (is_scan_down >= BLE_address_list.size()) {
+      doPrint = 1;
+    } else {
+      if (doDebug) log_e("未连接所有设备, 无法输出数据");
+    }
+  } else if (str == "printn") {
+    doPrint = 0;
   } else if (str.startsWith("rate")) {
     // 如果是: "ratex" -> 更改速率为 第x个
     if (str.length() < 5) {
@@ -273,9 +295,12 @@ void serialEvent() {
         }
       }
     }
-  } else if (str == "debug") {
+  } else if (str == "debugy") {
     doDebug = doDebug == 0 ? 1 : 0;
-    log_i("调试模式: %s\n", doDebug ? "开启" : "关闭");
+    log_i("调试模式: 开启");
+  } else if (str == "debugn") {
+    doDebug = 0;
+    log_i("调试模式: 关闭");
   } else {
     log_e("Other");
   }
