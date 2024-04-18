@@ -19,11 +19,12 @@ void initDeviceAddressList() {
                           device_data[i][0], device_data[i][1],
                           device_data[i][2]);
           }
+        } else {
+          for (int i = 0; i < dData.size(); i++) {
+            Serial.printf("%02x ", dData[i]);
+          }
+          Serial.println();
         }
-        // 数据输出
-        uint8_t* data = dData.data();
-        Serial.write(data, dData.size());
-        Serial.println();
         device_data_update.assign(device_data_update.size(), 0);
       },
       10);
@@ -35,26 +36,25 @@ void initDeviceAddressList() {
 }
 
 void scan_handler() {
-  string str = "开始扫描, 未连接设备列表: ";
+  Serial.print("[scan_handler] 开始扫描, 未连接设备列表: ");
   for (int i = 0; i < BLE_address_list.size(); i++) {
     if (is_connected_device_list[i] == 0) {
-      str += to_string(i) + " ";
+      Serial.printf("%d ", i);
     }
   }
-  str += ".";
-  log_i("%s", str);
+  Serial.println(".");
   pBLEScan->clearResults();  // 清空搜索结果
   pBLEScan->start(5);        // 开始搜索
 }
 
 void con_handler() {
-  log_i("连接至设备-%d\n", pConIndex);
+  Serial.printf("[scan_handler] 连接至设备-%d\n", pConIndex);
   MyClient client = client_list[pConIndex];
   if (client.connect()) {
-    log_i("设备-%d Connect successfully!\n", pConIndex);
+    Serial.printf("设备-%d Connect successfully!\n", pConIndex);
     is_connected_device_list[pConIndex] = 1;
   } else {
-    log_e("设备-%d Connect failed!\n", pConIndex);
+    Serial.printf("设备-%d Connect failed!\n", pConIndex);
   }
   doCon = 0;
   doScan = 1;
@@ -65,15 +65,15 @@ void MyAdveertisedDeviceCallbacks::onResult(
     BLEAdvertisedDevice advertisedDevice) {
   // 判断名字是否以 "WT901" 开头
   if (advertisedDevice.getName().find("WT901") != std::string::npos) {
-    log_i("[MyAdveertisedDeviceCallbacks] 扫描到设备: %s\n",
-          advertisedDevice.getAddress().toString().c_str());
+    Serial.printf("[MyAdveertisedDeviceCallbacks] 扫描到设备: %s\n",
+                  advertisedDevice.getAddress().toString().c_str());
     // 判断是否在连接列表中
     for (int i = 0; i < BLE_address_list.size(); i++) {
       // 扫描到设备且未连接
       if (advertisedDevice.getAddress() == BLE_address_list[i] &&
           is_connected_device_list[i] == 0) {
-        log_i("[MyAdveertisedDeviceCallbacks] 扫描可连接设备-%d: %s\n", i,
-              advertisedDevice.getAddress().toString().c_str());
+        Serial.printf("[MyAdveertisedDeviceCallbacks] 扫描可连接设备-%d: %s\n",
+                      i, advertisedDevice.getAddress().toString().c_str());
         pDevice = new BLEAdvertisedDevice(advertisedDevice);
         pConIndex = i;
         pBLEScan->stop();  // 停止扫描
@@ -88,23 +88,25 @@ void MyAdveertisedDeviceCallbacks::onResult(
 // 客户端连接/断开回调
 MyClientCallbacks::MyClientCallbacks(int idx) { client_index_ = idx; };
 void MyClientCallbacks::onConnect(BLEClient* pClient) {
-  log_i("%s 加入连接.", pClient->getPeerAddress().toString().c_str());
+  Serial.print(pClient->getPeerAddress().toString().c_str());
+  Serial.println(" 加入连接");
   is_scan_down += 1;
   if (is_scan_down == BLE_address_list.size()) {
-    log_i("-------所有设备已连接---------");
+    Serial.println("-------所有设备已连接---------");
     if (!doPrint) {
       doPrint = 1;
-      log_i("-------开始输出数据---------");
+      Serial.println("-------开始输出数据---------");
     }
   }
 }
 void MyClientCallbacks::onDisconnect(BLEClient* pClient) {
   is_connected_device_list[client_index_] = 0;  // 标志位清零
-  log_e("%s 断开连接.", pClient->getPeerAddress().toString().c_str());
+  Serial.print(pClient->getPeerAddress().toString().c_str());
+  Serial.println(" 断开连接");
   is_scan_down -= 1;
   doPrint = 0;
-  log_e("----- 设备-%d 断开连接 -----\n", client_index_);
-  log_e("----- 剩余设备数: %d ----\n", is_scan_down);
+  Serial.printf("----- 设备-%d 断开连接 -----\n", client_index_);
+  Serial.printf("----- 剩余设备数: %d ----\n", is_scan_down);
 }
 
 // 连接设备
@@ -123,29 +125,29 @@ MyClient::MyClient(int idx) {
   pWriteChar_ = nullptr;
 }
 bool MyClient::connect() {
-  log_i("设备-%d 正在连接...\n", BLEIndex_);
+  Serial.printf("设备-%d 正在连接...\n", BLEIndex_);
   pClient_->setClientCallbacks(new MyClientCallbacks(BLEIndex_));
   pClient_->connect(pDevice);
   if (pClient_->isConnected()) {
-    log_i("设备-%d 连接成功\n", BLEIndex_);
+    Serial.printf("设备-%d 连接成功\n", BLEIndex_);
   } else {
-    log_e("设备-%d 连接失败\n", BLEIndex_);
+    Serial.printf("设备-%d 连接失败\n", BLEIndex_);
     return false;
   }
 
   pService_ = pClient_->getService("0000ffe5-0000-1000-8000-00805f9a34fb");
   if (pService_ == nullptr) {
-    log_e("设备-%d 获取服务失败\n", BLEIndex_);
+    Serial.printf("设备-%d 获取服务失败\n", BLEIndex_);
     return false;
   }
-  log_i("设备-%d 获取服务成功\n", BLEIndex_);
+  Serial.printf("设备-%d 获取服务成功\n", BLEIndex_);
 
   pNotifyChar_ =
       pService_->getCharacteristic("0000FFE4-0000-1000-8000-00805F9A34FB");
   if (pNotifyChar_ && pNotifyChar_->canNotify()) {
-    log_i("设备-%d 获取 Notify 特征成功\n", BLEIndex_);
+    Serial.printf("设备-%d 获取 Notify 特征成功\n", BLEIndex_);
   } else {
-    log_e("设备-%d 获取 Notify 特征失败\n", BLEIndex_);
+    Serial.printf("设备-%d 获取 Notify 特征失败\n", BLEIndex_);
     return false;
   }
 
@@ -153,9 +155,9 @@ bool MyClient::connect() {
       pService_->getCharacteristic("0000FFE9-0000-1000-8000-00805F9A34FB");
   if (pWriteChar_ && pWriteChar_->canWriteNoResponse()) {
     pWriteCharList[BLEIndex_] = pWriteChar_;
-    log_i("设备-%d 获取 WriteNoRes 特征成功\n", BLEIndex_);
+    Serial.printf("设备-%d 获取 WriteNoRes 特征成功\n", BLEIndex_);
   } else {
-    log_e("设备-%d 获取 WriteNoRes 特征失败\n", BLEIndex_);
+    Serial.printf("设备-%d 获取 WriteNoRes 特征失败\n", BLEIndex_);
     return false;
   }
 
@@ -203,16 +205,16 @@ bool MyClient::connect() {
 
   if (pNotifyChar_->canNotify()) {
     pNotifyChar_->registerForNotify(myNotifyCallback);
-    log_i("设备-%d 此特征值 支持 Notify\n", BLEIndex_);
+    Serial.printf("设备-%d 此特征值 支持 Notify\n", BLEIndex_);
   } else {
-    log_e("设备-%d 此特征值 不支持 Notify\n", BLEIndex_);
+    Serial.printf("设备-%d 此特征值 不支持 Notify\n", BLEIndex_);
   }
   return true;
 }
 
 void setup() {
   Serial.begin(115200);
-  log_i("Device started!");
+  Serial.println("Device started!");
 
   BLEDevice::init("ESP32_Bayyy");  // 初始化BLE设备, 其中的参数为设备名称
   pBLEScan = BLEDevice::getScan();  // 获取扫描对象
@@ -242,7 +244,7 @@ void loop() {
 
 void serialEvent() {
   String str = Serial.readString();  // 读取串口数据
-  log_i("收到指令 %s", str);
+  Serial.print(str);
   // 去除换行符、回车及空格
   str.trim();
   if (str == "stop") {
@@ -259,24 +261,24 @@ void serialEvent() {
     int rate = str.substring(4).toInt();
     if (rate >= 0 && rate < changeRate.size() - 1) {
       uint8_t* data = changeRate[rate].data();
-      log_i("更改速率为: %.1f Hz\n", rateHz[rate]);
+      Serial.printf("更改速率为: %.1f Hz\n", rateHz[rate]);
       t.changeDelay(t_name, timerMs[rate]);  // 更改定时器时间
-      log_i("写入: %x %x %x %x %x\n", data[0], data[1], data[2], data[3],
-            data[4]);
+      Serial.printf("写入: %x %x %x %x %x\n", data[0], data[1], data[2],
+                    data[3], data[4]);
       // 遍历已连接设备, pWriteChar 写入数据
       for (int i = 0; i < client_list.size(); i++) {
         if (is_connected_device_list[i] == 1) {
           if (pWriteCharList[i] != nullptr) {
             pWriteCharList[i]->writeValue(data, 5);
-            log_i("设备-%d 更改速率成功\n", i);
+            Serial.printf("设备-%d 更改速率成功\n", i);
           }
         }
       }
     }
   } else if (str == "debug") {
     doDebug = doDebug == 0 ? 1 : 0;
-    log_i("调试模式: %s\n", doDebug ? "开启" : "关闭");
+    Serial.printf("调试模式: %s\n", doDebug ? "开启" : "关闭");
   } else {
-    log_e("Other");
+    Serial.println("Other");
   }
 }
