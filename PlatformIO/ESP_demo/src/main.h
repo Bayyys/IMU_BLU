@@ -56,6 +56,7 @@ vector<vector<uint8_t>> changeRate = {
 };
 vector<float> rateHz = {0.1, 0.5, 1, 2, 5, 10, 20, 50, 100, 200};
 vector<int> timerMs = {10000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5};
+int initRate = 2;  // 初始化速率
 
 void connectToDevices(BLEAdvertisedDevice device, int index);
 

@@ -169,7 +169,7 @@ bool MyClient::connect() {
   if (pWriteChar_ && pWriteChar_->canWriteNoResponse()) {
     pWriteCharList[BLEIndex_] = pWriteChar_;
     log_i("设备-%d 获取 WriteNoRes 特征成功\n", BLEIndex_);
-    pWriteChar_->writeValue(changeRate[5].data(), 5);  // 默认速率为 10Hz
+    pWriteChar_->writeValue(changeRate[initRate].data(), 5);  // 默认速率为 10Hz
   } else {
     log_e("设备-%d 获取 WriteNoRes 特征失败\n", BLEIndex_);
     return false;
