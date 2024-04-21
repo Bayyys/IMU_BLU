@@ -7,6 +7,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.println("Hello Test!!!!!");
+  Serial.println("Hello World By VsCode!");
   delay(1000);
 }
