@@ -6,12 +6,19 @@
 using namespace std;
 
 vector<BLEAddress> BLE_address_list;  // 需要连接的设备地址列表
+// vector<string> device_address_str_list = {
+//     "CF:88:10:CB:0A:2E",  // 设备 0
+//     "F3:8C:9A:CF:F0:D7",  // 设备 1
+//     "D9:69:71:72:2D:1E",  // 设备 2
+//     "FF:E6:12:3B:08:A6",  // 设备 3
+//                           // "E5:4B:A7:C7:85:32",  // 设备 4
+// };
 vector<string> device_address_str_list = {
-    "CF:88:10:CB:0A:2E",  // 设备 0
-    "F3:8C:9A:CF:F0:D7",  // 设备 1
-    "D9:69:71:72:2D:1E",  // 设备 2
-    "FF:E6:12:3B:08:A6",  // 设备 3
-                          // "E5:4B:A7:C7:85:32",  // 设备 4
+    "C9:AD:9B:6C:D5:55",  // 设备 0
+    "DB:93:29:A5:56:13",  // 设备 1
+    "D1:0B:94:CB:B6:E4",  // 设备 2
+    "DA:AC:3D:FD:3D:C7",  // 设备 3
+                          // "D2:A4:46:F6:1B:99",  // 设备 4
 };
 
 AsyncTimer t;              // 定时器
