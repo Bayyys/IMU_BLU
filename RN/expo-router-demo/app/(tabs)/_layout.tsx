@@ -56,12 +56,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="subtab/index"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }

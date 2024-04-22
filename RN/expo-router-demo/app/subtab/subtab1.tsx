@@ -1,21 +1,18 @@
+import { View, Text } from "@/components/Themed";
+import { router } from "expo-router";
+import React from "react";
 import { Button, StyleSheet } from "react-native";
 
-import { Text, View } from "@/components/Themed";
-import { router } from "expo-router";
-
-export default function TabTwoScreen() {
+export default function Subtab1() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>页面2</Text>
+      <Text style={styles.title}>Subtab1</Text>
       <View
         style={styles.separator}
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Button
-        title="跳转到页面3"
-        onPress={() => router.replace("/subtab/subtab1")}
-      />
+      <Button title="跳转到页面1" onPress={() => router.replace("/")} />
     </View>
   );
 }

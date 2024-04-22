@@ -56,6 +56,7 @@ function RootLayoutNav() {
       <Stack initialRouteName="(tabs)">
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen name="subtab" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
