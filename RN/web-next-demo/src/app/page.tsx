@@ -16,10 +16,14 @@ export default function Home() {
 
   // 添加串口的丽娜姐监听
   const addSerialListener = useCallback(() => {
-    navigator.serial.addEventListener("connect", (e) => {
+    if (!("serial" in navigator)) {
+      return;
+    }
+    // 解决navigator.serial未定义问题
+    (navigator.serial as any).addEventListener("connect", (e: any) => {
       console.log("连接设备", e);
     });
-    navigator.serial.addEventListener("disconnect", (e) => {
+    (navigator.serial as any).addEventListener("disconnect", (e: any) => {
       console.log("断开设备", e);
     });
   }, []);
@@ -144,7 +148,11 @@ export default function Home() {
       return;
     }
     // 用户选择串口
-    port = await navigator.serial.requestPort();
+    if (!("serial" in navigator)) {
+      console.log("当前设备不支持串口通信");
+      return;
+    }
+    port = await (navigator.serial as any).requestPort();
     keepReading = true;
 
     // 读取数据
