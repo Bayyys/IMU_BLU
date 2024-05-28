@@ -142,7 +142,7 @@ const RootLayout = ({ children }: React.PropsWithChildren) => {
               <Menu
                 theme="dark"
                 defaultOpenKeys={openKeys}
-                defaultSelectedKeys={selectDefault}
+                defaultSelectedKeys={["/"]}
                 mode="inline"
                 items={items}
                 onSelect={({ keyPath }) => goPath(keyPath)}

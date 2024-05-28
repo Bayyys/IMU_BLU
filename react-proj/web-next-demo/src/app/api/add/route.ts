@@ -5,15 +5,6 @@ import { PrismaClient } from "@prisma/client";
 
 export const GET = async () => {
   const prisma = new PrismaClient();
-  await prisma.user.create({
-    data: {
-      name: "bayyy",
-      age: 24,
-      sex: true,
-      email: "123@qq.com",
-      tel: "110",
-    },
-  });
   const data = await prisma.user.findMany();
   return NextResponse.json({ code: 200, data });
 };
