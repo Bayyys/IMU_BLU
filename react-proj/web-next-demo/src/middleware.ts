@@ -7,11 +7,11 @@ import { NextRequest, NextResponse } from "next/server";
 // export default NextAuth(authConfig).auth;
 
 export function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
-  console.log("🚀 ~ middleware ~ pathname:", pathname);
-  if (pathname !== "/") {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+  // const pathname = req.nextUrl.pathname;
+  // console.log("🚀 ~ middleware ~ pathname:", pathname);
+  // if (pathname !== "/") {
+  //   return NextResponse.redirect(new URL("/", req.url));
+  // }
   // 判断是否访问的是根路径
   // if (req.url === "/") {
   //   console.log(req.url);

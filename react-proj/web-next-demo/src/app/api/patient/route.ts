@@ -1,4 +1,6 @@
-// GET 方法: 返回{code: 200, msg: 'Hello World!'}
+// GET 方法: 返回{code: 200, msg: { count: number, users: User[] }}
+// 用户信息列表，支持根据id和name查询
+// 分页查询
 
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";

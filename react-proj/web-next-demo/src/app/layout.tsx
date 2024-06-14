@@ -110,7 +110,6 @@ const RootLayout = ({ children }: React.PropsWithChildren) => {
 
   useEffect(() => {
     const path = pathname.split("/").filter(Boolean);
-    console.log(path);
     if (path.length === 0) {
       setSelectDefault(["/"]);
     } else if (path.length === 1) {
