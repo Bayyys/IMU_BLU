@@ -10,9 +10,8 @@ import { ThemedView } from "@/components/ThemedView";
 
 const showDevicePaths = async () => {
   console.log("hello");
-  await RNSerialport.getDeviceList((response: any) => {
-    console.log(response); //list
-  });
+  const res = await RNSerialport.getDeviceList();
+  console.log("🚀 ~ showDevicePaths ~ res:", res)
 };
 
 export default function TabTwoScreen() {
